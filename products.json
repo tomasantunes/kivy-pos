@@ -1,0 +1,38 @@
+[
+    {
+        "name": "Bread and butter",
+        "price": 1.00
+    },
+    {
+        "name": "Dish of the day",
+        "price": 5.00
+    },
+    {
+        "name": "Soft drink",
+        "price": 1.20
+    },
+    {
+        "name": "Bottle of water",
+        "price": 1.00
+    },
+    {
+        "name": "Sparkling water",
+        "price": 1.20
+    },
+    {
+        "name": "Dessert",
+        "price": 2.00
+    },
+    {
+        "name": "Coffee",
+        "price": 0.75
+    },
+    {
+        "name": "Beer",
+        "price": 1.20
+    },
+    {
+        "name": "Glass of wine",
+        "price": 2.00
+    }
+]

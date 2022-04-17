@@ -1,0 +1,254 @@
+<WindowManager>:
+    LoginWindow:
+    TablesWindow:
+        on_pre_enter:
+            app.addTables()
+        on_leave:
+            self.removeTables()
+    TableWindow:
+        on_pre_enter:
+            self.add_products()
+        on_leave:
+            self.remove_products()
+    CheckoutWindow:
+
+<ListItem>:
+    # Draw a background to indicate selection
+    orientation: 'horizontal'
+    item_name: ''
+    item_price: ''
+    canvas.before:
+        Color:
+            rgba: (0, .4, .6, 1) if self.selected else (.4, .4, .4, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgba: (.4, .4, .4, .3)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    Label:
+        id: item_name
+        text: root.item_name
+    Label:
+        id: item_price
+        text: root.item_price
+
+<LoginWindow>:
+    id: login_screen
+    name: "login"
+
+    GridLayout:
+        id: login_layout
+        cols: 1
+        Label:
+            text: "Enter password:"
+            font_size: "50sp"
+        TextInput:
+            id: password_input
+            multiline: False
+            password: True
+            font_size: "100sp"
+        GridLayout:
+            cols: 3
+            Button:
+                text: '7'
+                on_release:
+                    app.password += "7"
+                    app.updatePasswordInput()
+            Button:
+                text: '8'
+                on_release:
+                    app.password += "8"
+                    app.updatePasswordInput()
+            Button:
+                text: '9'
+                on_release:
+                    app.password += "9"
+                    app.updatePasswordInput()
+            Button:
+                text: '4'
+                on_release:
+                    app.password += "4"
+                    app.updatePasswordInput()
+            Button:
+                text: '5'
+                on_release:
+                    app.password += "5"
+                    app.updatePasswordInput()
+            Button:
+                text: '6'
+                on_release:
+                    app.password += "6"
+                    app.updatePasswordInput()
+            Button:
+                text: '1'
+                on_release:
+                    app.password += "1"
+                    app.updatePasswordInput()
+            Button:
+                text: '2'
+                on_release:
+                    app.password += "2"
+                    app.updatePasswordInput()
+            Button:
+                text: '3'
+                on_release:
+                    app.password += "3"
+                    app.updatePasswordInput()
+            Button:
+                text: '0'
+                on_release:
+                    app.password += "0"
+                    app.updatePasswordInput()
+            Button:
+                text: 'C'
+                on_release:
+                    app.password = ""
+                    app.updatePasswordInput()
+            Button:
+                text: 'OK'
+                on_release:
+                    app.root.current = "tables" if app.password == app.admin_password else "login"
+                    root.manager.transition.direction = "left"
+                    app.password = ""
+                    app.updatePasswordInput()
+            
+<TablesWindow>:
+    name: "tables"
+
+    GridLayout:
+        id: tables_layout
+        cols: 5
+                         
+<ProductButton>:
+    text: ""
+    on_release:
+        app.temp_products_index += 1
+        app.root.get_screen('table').ids.temp_product_list.data.append({"ind": app.temp_products_index, "item_name": root.text, "item_price": "{:.2f}".format(round(root.price, 2))})
+
+<CheckoutWindow>
+    name: "checkout"
+    GridLayout:
+        id: checkout_layout
+        cols: 1
+
+        Label:
+            id: total_desc_label
+            text: "Total"
+            font_size: "18sp"
+            size_hint_y: None
+            height: 40
+        Label:
+            id: total_label
+            font_size: "50sp"
+            text: "{:.2f}".format(round(app.getTableTotal(), 2))
+        Label:
+            id: payment_desc_label
+            text: "Payment"
+            font_size: "18sp"
+            size_hint_y: None
+            height: 40
+        TextInput:
+            id: payment_input
+            font_size: "50sp"
+            on_text:
+                app.getChange()
+        Label:
+            id: chenge_desc_label
+            text: "Change"
+            font_size: "18sp"
+            size_hint_y: None
+            height: 40
+        Label:
+            id: change_label
+            font_size: "50sp"
+        Button:
+            id: finish_btn
+            font_size: "50sp"
+            text: "Finish"
+            on_release:
+                app.finishTable(app.selected_table)
+                app.root.current = "tables"
+                root.manager.transition.direction = "right"
+
+<TableWindow>
+    name: "table"
+    container: select_products_layout
+
+    GridLayout:
+        id: table_layout
+        cols: 1
+
+        Label:
+            id: table_label
+            text: ""
+            font_size: "18sp"
+            size_hint_y: None
+            height: 40
+
+        GridLayout:
+            id: select_products_layout
+            cols: 5
+
+        GridLayout:
+            id: product_list_layout
+            cols: 3
+
+            ProductList:
+                id: temp_product_list
+
+                viewclass: 'ListItem'
+
+                SelectableRecycleBoxLayout:
+                    default_size: None, dp(26)
+                    default_size_hint: 1, None
+                    size_hint_y: None
+                    height: self.minimum_height
+                    orientation: 'vertical'
+                    multiselect: True
+                    touch_multiselect: True
+
+            GridLayout:
+                id: product_list_buttons
+                cols: 1
+                Button:
+                    text: "Checkout"
+                    on_release:
+                        app.root.current = "checkout"
+                        root.manager.transition.direction = "right"
+                Button:
+                    text: "Add"
+                    on_release:
+                        [root.ids.final_product_list.data.append(i) for i in root.ids.temp_product_list.get_selected()]
+                        [root.ids.temp_product_list.data.remove(i) for i in root.ids.temp_product_list.get_selected()]
+                        app.setTableProducts(app.selected_table, root.ids.final_product_list.data)
+                        app.updateTableTotal(app.selected_table, root.ids.final_product_list.data)
+                Button:
+                    text: "Remove"
+                    on_release:
+                        [root.ids.temp_product_list.data.remove(i) for i in root.ids.temp_product_list.get_selected()]
+                Button:
+                    text: "Close"
+                    on_release:
+                        app.root.current = "tables"
+                        root.manager.transition.direction = "right"
+
+            ProductList:
+                id: final_product_list
+
+                viewclass: 'ListItem'
+
+                SelectableRecycleBoxLayout:
+                    default_size: None, dp(26)
+                    default_size_hint: 1, None
+                    size_hint_y: None
+                    height: self.minimum_height
+                    orientation: 'vertical'
+                    multiselect: True
+                    touch_multiselect: True
+            
+            
+
+
